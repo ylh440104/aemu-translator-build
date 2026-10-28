@@ -142,6 +142,22 @@ jobs:
           ls -l qemu-arm
           sha256sum qemu-arm | tee /tmp/sum.txt
 
+      - name: binder smoke test
+        run: |
+          set -x
+          cd qemu-8.2.4/build
+          gcc -O2 -Wall -Wno-unused-function -D_GNU_SOURCE -o /tmp/sbd ../../binderd/sensesbinderd.c
+          rm -f /tmp/b.sock /tmp/bd.log
+          nohup /tmp/sbd -s /tmp/b.sock -v > /tmp/bd.log 2>&1 &
+          sleep 1
+          cat /tmp/bd.log
+          GUEST_BINDER=/tmp/b.sock timeout 8 ./qemu-arm -L ../../fw /system/bin/servicemanager > /tmp/sm.log 2>&1 || true
+          echo '--- sm ---'
+          cat /tmp/sm.log
+          echo '--- daemon ---'
+          tail -30 /tmp/bd.log
+          pkill -f '/tmp/sbd' || true
+
       - uses: actions/upload-artifact@v4
         with:
           name: qemu-arm-static
