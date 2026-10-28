@@ -93,7 +93,10 @@ jobs:
           echo "pc files: $(ls $PKG_CONFIG_PATH 2>/dev/null | grep -c pc)"
           pkg-config --exists glib-2.0 && echo "glib found" || echo "glib NOT found"
           set +e
-          CC=musl-gcc CFLAGS="-O2 -fPIC -I$PREFIX/include" LDFLAGS="-L$PREFIX/lib" \
+          mkdir -p $PWD/uapi && cp -r /usr/include/linux $PWD/uapi/ 2>/dev/null || true
+          cp -r /usr/include/asm-generic $PWD/uapi/ 2>/dev/null || true
+          cp -r /usr/include/aarch64-linux-gnu/asm $PWD/uapi/ 2>/dev/null || true
+          CC=musl-gcc CFLAGS="-O2 -fPIC -I$PREFIX/include -I$PWD/uapi" LDFLAGS="-L$PREFIX/lib" \
           ../configure --target-list=arm-linux-user --static --disable-system \
             --without-default-features --enable-tcg --disable-plugins \
             --disable-tools --disable-docs --disable-capstone --disable-fdt \
