@@ -89,7 +89,9 @@ jobs:
           cd qemu-8.2.4
           mkdir -p build && cd build
           export PREFIX=$PWD/../../musl-prefix
-          export PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
+          export PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig:$PREFIX/lib/aarch64-linux-gnu/pkgconfig
+          echo "pc files: $(ls $PKG_CONFIG_PATH 2>/dev/null | grep -c pc)"
+          pkg-config --exists glib-2.0 && echo "glib found" || echo "glib NOT found"
           set +e
           CC=musl-gcc CFLAGS="-O2 -fPIC -I$PREFIX/include" LDFLAGS="-L$PREFIX/lib" \
           ../configure --target-list=arm-linux-user --static --disable-system \
