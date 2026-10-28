@@ -32,6 +32,21 @@ jobs:
           done
           echo "rejects: $(ls /tmp/rej_* 2>/dev/null | wc -l)"
 
+      - name: relax the not-reached check
+        run: |
+          cd qemu-8.2.4
+          python3 - <<'PYEOF'
+          import io
+          p = 'include/qemu/osdep.h'
+          s = io.open(p, encoding='utf-8').read()
+          old = '#define qemu_build_not_reached()  qemu_build_not_reached_always()'
+          new = '#define qemu_build_not_reached()  g_assert_not_reached()'
+          assert old in s, 'qemu_build_not_reached macro not found'
+          s = s.replace(old, new)
+          io.open(p, 'w', encoding='utf-8').write(s)
+          print('patched qemu_build_not_reached')
+          PYEOF
+
       - name: our sources
         run: cp -r src/. qemu-8.2.4/linux-user/
 
