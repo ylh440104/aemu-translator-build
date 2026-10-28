@@ -54,7 +54,10 @@ jobs:
           cd ..
           cd libffi-3.4.6
           MUSLINCLUDE=$(dirname $(musl-gcc -print-file-name=include))/include
-          ./configure CC="musl-gcc -isystem $MUSLINCLUDE -isystem /usr/include/aarch64-linux-gnu" CFLAGS="-O2 -fPIC" --host=aarch64-linux-musl --prefix=$PREFIX --enable-static --disable-shared --disable-docs >/dev/null
+          mkdir -p $PWD/uapi && cp -r /usr/include/linux $PWD/uapi/ 2>/dev/null || true
+          cp -r /usr/include/asm-generic $PWD/uapi/ 2>/dev/null || true
+          cp -r /usr/include/aarch64-linux-gnu/asm $PWD/uapi/ 2>/dev/null || true
+          ./configure CC="musl-gcc -isystem $MUSLINCLUDE -isystem $PWD/uapi" CFLAGS="-O2 -fPIC" --host=aarch64-linux-musl --prefix=$PREFIX --enable-static --disable-shared --disable-docs >/dev/null
           make -j8 >/dev/null && make install >/dev/null
           cd ..
           cd pcre2-10.43
