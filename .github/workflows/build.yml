@@ -78,12 +78,28 @@ jobs:
           mkdir -p build && cd build
           export PREFIX=$PWD/../../musl-prefix
           export PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
+          set +e
           CC=musl-gcc CFLAGS="-O2 -fPIC -I$PREFIX/include" LDFLAGS="-L$PREFIX/lib" \
           ../configure --target-list=arm-linux-user --static --disable-system \
             --without-default-features --enable-tcg --disable-plugins \
             --disable-tools --disable-docs --disable-capstone --disable-fdt \
-            --disable-libusb --disable-pixman 2>&1 | tail -25
-          ninja -j8 qemu-arm 2>&1 | tail -15
+            --disable-libusb --disable-pixman > /tmp/conf.log 2>&1
+          RC=$?
+          set -e
+          if [ $RC -ne 0 ]; then
+            echo "=== configure failed ($RC) ==="
+            grep -iE 'error|cannot|not found|failed' /tmp/conf.log | head -25
+            tail -30 /tmp/conf.log
+            exit 1
+          fi
+          tail -12 /tmp/conf.log
+          ninja -j8 qemu-arm > /tmp/build.log 2>&1 || {
+            echo "=== build failed ==="
+            grep -iE 'error|FAILED' /tmp/build.log | head -25
+            tail -30 /tmp/build.log
+            exit 1
+          }
+          tail -5 /tmp/build.log
 
       - name: verify
         run: |
