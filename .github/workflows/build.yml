@@ -75,11 +75,12 @@ jobs:
             grep -E 'error:|FAILED' /tmp/glib.log | head -15
             tail -20 /tmp/glib.log
             exit 1; }
-          ninja -C _b install > /tmp/glibinst.log 2>&1 || {
-            echo "=== glib install failed ==="; tail -20 /tmp/glibinst.log; exit 1; }
+          meson install -C _b > /tmp/glibinst.log 2>&1 || {
+            echo "=== glib install failed ==="; tail -25 /tmp/glibinst.log; exit 1; }
           echo "=== glib installed ==="
-          ls -l $PREFIX/lib/pkgconfig/ | head -10
-          ls -l $PREFIX/lib/libglib-2.0.a || echo "no libglib-2.0.a"
+          find $PREFIX -name '*.a' | head -12
+          find $PREFIX -name 'glib-2.0.pc' | head -3
+          test -f $PREFIX/lib/libglib-2.0.a || { echo "MISSING libglib-2.0.a"; ls -R $PREFIX | head -40; exit 1; }
 
       - name: build qemu
         run: |
