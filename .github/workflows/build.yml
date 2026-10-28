@@ -80,7 +80,9 @@ jobs:
           echo "=== glib installed ==="
           find $PREFIX -name '*.a' | head -12
           find $PREFIX -name 'glib-2.0.pc' | head -3
-          test -f $PREFIX/lib/libglib-2.0.a || { echo "MISSING libglib-2.0.a"; ls -R $PREFIX | head -40; exit 1; }
+          test -f $PREFIX/lib/aarch64-linux-gnu/libglib-2.0.a || { echo "MISSING libglib-2.0.a"; exit 1; }
+          ln -sf $PREFIX/lib/aarch64-linux-gnu/*.a $PREFIX/lib/ 2>/dev/null || true
+          ls $PREFIX/lib/*.a | head -8
 
       - name: build qemu
         run: |
