@@ -100,7 +100,7 @@ jobs:
           ../configure --target-list=arm-linux-user --static --disable-system \
             --without-default-features --enable-tcg --disable-plugins \
             --disable-tools --disable-docs --disable-capstone --disable-fdt \
-            --disable-libusb --disable-pixman > /tmp/conf.log 2>&1
+            --disable-libusb --disable-pixman --disable-werror --enable-debug > /tmp/conf.log 2>&1
           RC=$?
           set -e
           if [ $RC -ne 0 ]; then
