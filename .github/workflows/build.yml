@@ -58,7 +58,8 @@ jobs:
           PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig meson setup _b --prefix=$PREFIX --buildtype=release \
             --default-library=static -Dselinux=disabled -Dlibmount=disabled -Dtests=false \
             -Dglib_debug=disabled -Dc_args="-O2 -fPIC" 2>&1 | tail -10
-          ninja -C _b -j8 2>&1 | tail -6
+          ninja -C _b -j8 2>&1 | grep -E 'error:|FAILED' | head -20
+          ninja -C _b -j8 2>&1 | tail -3
           ninja -C _b install 2>&1 | tail -3
 
       - name: build qemu
